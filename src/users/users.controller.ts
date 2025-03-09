@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiOperation, ApiBody, ApiTags } from "@nestjs/swagger";
 import { PermissionsGuard } from "src/roles/guards/permissions.guard";
 import { Permissions } from "src/roles/decorators/permissions.decorator";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { Public } from "src/auth/decorators/skip-auth.decorator";
 
 @ApiBearerAuth()
 @ApiTags("Users")
@@ -32,22 +33,19 @@ export class UsersController {
     return { exists };
   }
 
+  @Public()
   @Post()
-  @ApiBody({
-    schema: {
-      type: "object",
-      properties: {
-        name: { type: "string" },
-        email: { type: "string" },
-        password: { type: "string" },
-        profilePhoto: { type: "string", format: "binary" },
-        cardFront: { type: "string", format: "binary" },
-        cardBack: { type: "string", format: "binary" },
-        signature: { type: "string", format: "binary" },
-        ahvCard: { type: "string", format: "binary" },
-      },
-    },
-  })
+  // @ApiBody({
+  //   schema: {
+  //     type: "object",
+  //     properties: {
+  //       name: { type: "string" },
+  //       email: { type: "string" },
+  //       password: { type: "string" },
+  //       profilePhoto: { type: "string", format: "binary" },
+  //     },
+  //   },
+  // })
   async create(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.create(createUserDto);
   }
@@ -68,21 +66,17 @@ export class UsersController {
   }
 
   @Patch(":id")
-  @ApiBody({
-    schema: {
-      type: "object",
-      properties: {
-        name: { type: "string" },
-        email: { type: "string" },
-        password: { type: "string" },
-        profilePhoto: { type: "string", format: "binary" },
-        cardFront: { type: "string", format: "binary" },
-        cardBack: { type: "string", format: "binary" },
-        signature: { type: "string", format: "binary" },
-        ahvCard: { type: "string", format: "binary" },
-      },
-    },
-  })
+  // @ApiBody({
+  //   schema: {
+  //     type: "object",
+  //     properties: {
+  //       name: { type: "string" },
+  //       email: { type: "string" },
+  //       password: { type: "string" },
+  //       profilePhoto: { type: "string", format: "binary" },
+  //     },
+  //   },
+  // })
   @ApiOperation({ summary: "Update a user by ID" })
   async update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);

@@ -8,6 +8,9 @@ export class User {
   @Column({ nullable: true })
   name: string;
 
+  @Column({ nullable: true })
+  company: string;
+
   @Column({ type: "date", nullable: true })
   birthDate: Date;
 
