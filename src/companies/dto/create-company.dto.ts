@@ -5,5 +5,7 @@ export class CreateCompanyDto {
   name: string;
 
   @ApiProperty()
+
+  @ApiProperty()
   logo: string;
 }

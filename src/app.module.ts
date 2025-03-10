@@ -11,6 +11,7 @@ import { Permission } from "./roles/entities/permission.entity";
 import { AuthModule } from "./auth/auth.module";
 import { SeedModule } from "./seed/seed.module";
 import { CompaniesController } from "./companies/companies.controller";
+import { CarsModule } from './cars/cars.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CompaniesController } from "./companies/companies.controller";
     UsersModule,
     RolesModule,
     SeedModule,
+    CarsModule,
   ],
   controllers: [CompaniesController],
   providers: [],
