@@ -6,6 +6,9 @@ export class CreateCarDto {
   name: string;
 
   @ApiProperty()
+  company: string;
+
+  @ApiProperty()
   make: string;
 
   @ApiProperty()

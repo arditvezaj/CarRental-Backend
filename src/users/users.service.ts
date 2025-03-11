@@ -74,32 +74,30 @@ export class UsersService {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
 
-      if (updateUserDto.password) {
-        const isHashedPassword =
-          updateUserDto.password.length === user.password.length;
-        const isSamePassword = isHashedPassword
-          ? updateUserDto.password === user.password
-          : await bcrypt.compare(updateUserDto.password, user.password);
+      // if (updateUserDto.password) {
+      //   const isHashedPassword =
+      //     updateUserDto.password.length === user.password.length;
+      //   const isSamePassword = isHashedPassword
+      //     ? updateUserDto.password === user.password
+      //     : await bcrypt.compare(updateUserDto.password, user.password);
 
-        if (isSamePassword) {
-          delete updateUserDto.password;
-        } else if (!isHashedPassword) {
-          const saltRounds = 10;
-          updateUserDto.password = await bcrypt.hash(
-            updateUserDto.password,
-            saltRounds
-          );
-        }
-      }
+      //   if (isSamePassword) {
+      //     delete updateUserDto.password;
+      //   } else if (!isHashedPassword) {
+      //     const saltRounds = 10;
+      //     updateUserDto.password = await bcrypt.hash(
+      //       updateUserDto.password,
+      //       saltRounds
+      //     );
+      //   }
+      // }
 
       Object.assign(user, updateUserDto);
 
       return await this.usersRepository.save(user);
     } catch (error) {
       if (error.code === "23505") {
-        throw new ConflictException(
-          "Mitarbeiter mit dieser E-Mail existiert bereits"
-        );
+        throw new ConflictException("User with this email already exists.");
       }
       throw error;
     }

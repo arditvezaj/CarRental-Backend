@@ -6,6 +6,9 @@ export class Car {
   id: number;
 
   @Column({ nullable: true })
+  company: string;
+
+  @Column({ nullable: true })
   name: string;
 
   @Column({ nullable: true })
