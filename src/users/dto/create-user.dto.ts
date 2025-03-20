@@ -6,6 +6,9 @@ export class CreateUserDto {
   name: string;
 
   @ApiProperty()
+  company: string;
+
+  @ApiProperty()
   birthDate: Date;
 
   @ApiProperty()
@@ -18,6 +21,12 @@ export class CreateUserDto {
   phoneNumber: string;
 
   @ApiProperty()
-  @IsOptional()
   role: string;
+
+  @ApiProperty()
+  address: string;
+
+  @IsOptional()
+  @ApiProperty()
+  isEmailVerified: boolean;
 }

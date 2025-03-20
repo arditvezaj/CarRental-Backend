@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Inject,
   NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -12,15 +13,38 @@ import { JwtPayload } from "./types/jwt-payload";
 import { RequestUser } from "./types/request-user";
 import { RolesService } from "src/roles/roles.service";
 import * as bcrypt from "bcrypt";
-import { User } from "src/users/entities/user.entity";
+import * as nodemailer from "nodemailer";
+import { Cache } from "cache-manager";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly rolesService: RolesService
+    private readonly rolesService: RolesService,
+    @Inject("CACHE_MANAGER") private readonly cacheManager: Cache
   ) {}
+
+  async sendVerificationCode(email: string, code: string) {
+    await this.cacheManager.set(`verify-${email}`, code, 600);
+
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: Number(process.env.EMAIL_PORT),
+      secure: process.env.EMAIL_SECURE === "true",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Car Rental info@car.rental" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Your Verification Code",
+      text: `Your verification code is: ${code}`,
+    });
+  }
 
   async validateUser(
     email: string,
@@ -62,7 +86,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(loginDto.email);
 
     if (!user) {
-      throw new NotFoundException(`Benutzer ${loginDto.email} nicht gefunden.`);
+      throw new NotFoundException(`User ${loginDto.email} cannot be found.`);
     }
 
     const passwordIsCorrect = await bcrypt.compare(
@@ -70,7 +94,7 @@ export class AuthService {
       user.password
     );
     if (!passwordIsCorrect) {
-      throw new UnauthorizedException("Das Passwort ist falsch.");
+      throw new UnauthorizedException("Password is incorrect.");
     }
 
     const payload: JwtPayload = {
@@ -97,7 +121,7 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(loginDto.email);
 
     if (!user) {
-      throw new NotFoundException(`Benutzer ${loginDto.email} nicht gefunden.`);
+      throw new NotFoundException(`User ${loginDto.email} cannot be found.`);
     }
 
     const passwordIsCorrect = await bcrypt.compare(
@@ -105,15 +129,15 @@ export class AuthService {
       user.password
     );
     if (!passwordIsCorrect) {
-      throw new UnauthorizedException("Das Passwort ist falsch.");
+      throw new UnauthorizedException("Password is incorrect.");
     }
     const userHasAdminAccess = await this.rolesService.userHasAdminAccess(
       user.id
     );
 
-    if (!userHasAdminAccess) {
-      throw new UnauthorizedException("Benutzer hat keinen Admin-Zugang");
-    }
+    // if (!userHasAdminAccess) {
+    //   throw new UnauthorizedException("Benutzer hat keinen Admin-Zugang");
+    // }
 
     const payload: JwtPayload = {
       email: user.email,
