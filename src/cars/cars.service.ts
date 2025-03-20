@@ -16,8 +16,16 @@ export class CarsService {
     return await this.carsRepository.save(createCarDto);
   }
 
-  findAll() {
-    return this.carsRepository.find();
+  async findAll(search: string): Promise<Car[]> {
+    const query = this.carsRepository.createQueryBuilder("car");
+
+    if (search) {
+      query.andWhere("LOWER(car.name) LIKE :search", {
+        search: search.toLowerCase() + "%",
+      });
+    }
+
+    return await query.getMany();
   }
 
   findOne(id: number) {

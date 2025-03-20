@@ -5,11 +5,13 @@ import {
   Body,
   Patch,
   Param,
+  Query,
   Delete,
 } from "@nestjs/common";
 import { CarsService } from "./cars.service";
 import { CreateCarDto } from "./dto/create-car.dto";
 import { UpdateCarDto } from "./dto/update-car.dto";
+import { Car } from "./entities/car.entity";
 
 @Controller("cars")
 export class CarsController {
@@ -21,8 +23,8 @@ export class CarsController {
   }
 
   @Get()
-  findAll() {
-    return this.carsService.findAll();
+  async findAll(@Query("search") search: string): Promise<Car[]> {
+    return await this.carsService.findAll(search);
   }
 
   @Get(":id")

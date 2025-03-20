@@ -28,4 +28,7 @@ export class User {
 
   @Column({ nullable: true })
   role: string;
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
 }

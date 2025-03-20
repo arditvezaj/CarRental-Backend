@@ -25,4 +25,8 @@ export class CreateUserDto {
 
   @ApiProperty()
   address: string;
+
+  @IsOptional()
+  @ApiProperty()
+  isEmailVerified: boolean;
 }

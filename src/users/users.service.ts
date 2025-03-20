@@ -20,6 +20,14 @@ export class UsersService {
     private readonly usersRepository: Repository<User>
   ) {}
 
+  async verifyUser(email: string) {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) throw new NotFoundException("User not found");
+
+    user.isEmailVerified = true;
+    await this.usersRepository.save(user);
+  }
+
   async checkEmailExists(id: number, email: string): Promise<boolean> {
     const user = await this.usersRepository.findOne({
       where: { id: Not(id), email },
@@ -42,7 +50,7 @@ export class UsersService {
     } catch (error) {
       if (error.code === "23505") {
         throw new ConflictException(
-          "Mitarbeiter mit dieser E-Mail existiert bereits"
+          "User with this email already exists."
         );
       }
       throw error;
