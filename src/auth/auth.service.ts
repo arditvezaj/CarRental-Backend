@@ -18,12 +18,91 @@ import { Cache } from "cache-manager";
 
 @Injectable()
 export class AuthService {
+  private transporter;
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly rolesService: RolesService,
     @Inject("CACHE_MANAGER") private readonly cacheManager: Cache
-  ) {}
+  ) {
+    this.transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD, // Use the app-specific password here
+      },
+    });
+  }
+
+  ////////////
+
+  async sendClientMail(email: string, subject: string, message: string) {
+    const mailOptions = {
+      from: `<${process.env.EMAIL}>`,
+      to: "arditvezaj11@gmail.com",
+      subject: `Dashboard : ${subject}`,
+      text: `From: <${email}>\nMessage: ${message}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <p><strong>From:</strong> &lt;${email}&gt;</p>
+          <p style="font-size: 16px; line-height: 1.5; padding: 10px; background-color: #f9f9f9; border-radius: 8px;">
+            ${message}
+          </p>
+        </div>
+      `,
+    };
+    return this.transporter.sendMail(mailOptions);
+  }
+
+  async sendMail(name: string, email: string, message: string) {
+    const mailOptions = {
+      from: `"${name}" <${process.env.EMAIL}>`,
+      to: "arditvezaj11@gmail.com",
+      subject: `New Contact Form Submission from ${name}`,
+      text: `From: ${name} <${email}>\nMessage: ${message}`,
+      html: `
+        <p>From: ${name} &lt;${email}&gt;</p>
+        <p>Message: ${message}</p>
+      `,
+    };
+    return this.transporter.sendMail(mailOptions);
+  }
+
+  async returnMail(name, email) {
+    const signature = `
+        Best regards,
+        <br>
+        Drospect Team
+        <br>
+        <br>
+        <i>Enabling AI-powered inspection of energy infrastructure ☀️</i>
+        <br>
+        <img src="https://storage.googleapis.com/solar-panel-detection-1.appspot.com/drospect_logo/Group%20110.png" alt="Drospect">
+    `;
+
+    const customisedMessage = `
+        Dear ${name},
+        <br><br>
+        Thank you for reaching out. This is a confirmation that we have received your request. Our team will be on it right away and contact you very soon.
+        <br><br>
+        ${signature}
+    `;
+
+    const mailOptions = {
+      from: `"Drospect" <${process.env.EMAIL}>`,
+      to: email,
+      subject: `Confirmation of your message, ${name}`,
+      text: `
+        Dear ${name},
+
+        Thank you for reaching out. This is a confirmation that we have received your request. Our team will be on it right away and contact you very soon.
+      `,
+      html: customisedMessage,
+    };
+    return this.transporter.sendMail(mailOptions);
+  }
+
+  //////
 
   async sendVerificationCode(email: string, code: string) {
     await this.cacheManager.set(`verify-${email}`, code, 600);

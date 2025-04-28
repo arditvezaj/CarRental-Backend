@@ -33,6 +33,20 @@ export class AuthController {
   ) {}
 
   @Public()
+  @Post("send-mail")
+  async sendMail() {
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+
+    await this.authService.sendClientMail(
+      "arditvezaj11@gmail.com",
+      "subject",
+      code
+    );
+
+    return { message: "Verification code sent" };
+  }
+
+  @Public()
   @Post("send-verification")
   async sendVerification(@Body() { email }: { email: string }) {
     const code = Math.floor(1000 + Math.random() * 9000).toString();
